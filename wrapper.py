@@ -16,7 +16,7 @@ from astropy import units as u
 from astropy.table import Table
 from astropy.io import fits                         # noqa: F401  (kept: imported in notebook)
 
-from utils.codebook import Obj_SED, Obj_Spat_Dis, MAG_FIL, MAG_SYS, INS, CH, TEMPLATE_FULL_OBS, AM, SED_Name
+from utils.codebook import Obj_SED, Obj_Spat_Dis, MAG_FIL, MAG_SYS, INS, CH, TEMPLATE_FULL_OBS, AM, SED_Name, FLI
 
 import time
 
@@ -107,6 +107,7 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
 
     # ------------------------------------------------------------------
     # --- ETC computation ----------------------------------------------
+
     try:
         DIT = full_obs["DIT"]
         SNR = full_obs["SNR"]
@@ -116,23 +117,28 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
         print(con)
 
         # Decide what to compute
-        if np.isnan(DIT):
-            res = obj.time_from_source(con, im, spe, compute="dit")
-        else:
-            if np.isnan(SNR):
-                if full_obs["COADD_WL"] > 1:
-                    res = {
-                        "SNR": obj.snr_from_source(con, im, spe)["spec"][
-                            "snr_rebin"
-                        ].subspec(full_obs["Lam_Ref"], unit=u.angstrom)
-                    }
-                else:
-                    res = {
-                        "SNR": obj.snr_from_source(con, im, spe)["spec"]["snr"].subspec(
-                            full_obs["Lam_Ref"], unit=u.angstrom
-                        )
-                    }
+        if np.isnan(SNR):
+            if full_obs["COADD_WL"] > 1:
+                res = {
+                    "SNR": obj.snr_from_source(con, im, spe)["spec"][
+                        "snr_rebin"
+                    ].subspec(full_obs["Lam_Ref"], unit=u.angstrom)
+                }
             else:
+                res = {
+                    "SNR": obj.snr_from_source(con, im, spe)["spec"]["snr"].subspec(
+                        full_obs["Lam_Ref"], unit=u.angstrom
+                    )
+                }
+        else:
+            if np.isnan(DIT) and np.isnan(NDIT):
+                print("Given SNR, find the best DIT and NDIT")
+                res = obj.time_from_source(con, im, spe, compute="best")
+            elif np.isnan(DIT):
+                print("Given SNR, find the best DIT")
+                res = obj.time_from_source(con, im, spe, compute="dit")
+            elif np.isnan(NDIT):
+                print("Given SNR, find the best NDIT")
                 res = obj.time_from_source(con, im, spe, compute="ndit")
 
         # Add results (upper-case keys) to row dict
@@ -158,7 +164,7 @@ def main() -> None:
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of CPU available: {cpu_count}")
     # --- load FITS into pandas ----------------------------------------
-    fits_path = "/Users/andre/Downloads/testcatalogue_WST_vhalo_v7_1000.fits"
+    fits_path = "/Users/andre/Desktop/INAF/WST/pyetc_wrap/data/102_TESTCATALOG_v1225_1000.fits"
     tab = Table.read(fits_path, format="fits")
     df = tab.to_pandas()
     print("FITS file loaded")
