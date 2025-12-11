@@ -1,0 +1,318 @@
+enums:
+  Obj_SED:
+    1: uniform
+    2: bb
+    3: pl
+    4: template
+    5: line
+
+  Obj_Spat_Dis:
+    1: ps
+    2: sb
+    3: resolved
+
+  MAG_SYS:
+    1: Vega
+    2: AB
+
+  INS:
+    1: ifs
+    2: moshr
+    3: moslr
+
+  CH:
+    1: Blue
+    2: Green
+    3: Red
+    4: U
+    5: B
+    6: V
+    7: I
+
+  MAG_FIL:
+    101: U
+    102: B
+    103: V
+    104: R
+    105: I
+    106: J
+    107: H
+    108: K
+    201: uSDSS
+    202: gSDSS
+    203: rSDSS
+    204: iSDSS
+    205: zSDSS
+    206: jSDSS
+    301: uLSST
+    302: gLSST
+    303: rLSST
+    304: iLSST
+    305: zLSST
+    401: GGAIA
+    402: GbpGAIA
+    403: GrpGAIA
+    404: GrvsGAIA
+
+  SED_Name:
+    101: Pickles_O9V
+    102: Pickles_O5V
+    103: Pickles_B9V
+    104: Pickles_B9III
+    105: Pickles_B2IV
+    106: Pickles_A0III
+    107: Pickles_A0V
+    108: Pickles_G0V
+    109: Pickles_K7V
+    110: Pickles_K2V
+    111: Pickles_M2V
+
+    201: Kurucz_B1V
+    202: Kurucz_B8V
+    203: Kurucz_A1V
+    204: Kurucz_F0V
+    205: Kurucz_G2V
+
+    301: Kinney_s0
+    302: Kinney_sa
+    303: Kinney_sb
+    304: Kinney_ell
+    305: Kinney_starb1
+    306: Kinney_starb2
+    307: Kinney_starb3
+    308: Kinney_starb4
+    309: Kinney_starb5
+    310: Kinney_starb6
+
+    401: Galev_E
+    501: qso-interp
+
+    601: MARCS_3000K_lg+30
+    602: MARCS_3000K_lg+35
+    603: MARCS_3000K_lg+40
+    604: MARCS_3000K_lg+45
+    605: MARCS_3000K_lg+50
+    606: MARCS_3000K_lg+55
+
+    611: MARCS_3100K_lg+30
+    612: MARCS_3100K_lg+35
+    613: MARCS_3100K_lg+40
+    614: MARCS_3100K_lg+45
+    615: MARCS_3100K_lg+50
+    616: MARCS_3100K_lg+55
+
+    621: MARCS_3200K_lg+30
+    622: MARCS_3200K_lg+35
+    623: MARCS_3200K_lg+40
+    624: MARCS_3200K_lg+45
+    625: MARCS_3200K_lg+50
+
+    631: MARCS_3300K_lg+30
+    632: MARCS_3300K_lg+35
+    633: MARCS_3300K_lg+40
+    634: MARCS_3300K_lg+45
+    635: MARCS_3300K_lg+50
+    636: MARCS_3300K_lg+55
+
+    641: MARCS_3400K_lg+30
+    642: MARCS_3400K_lg+35
+    643: MARCS_3400K_lg+40
+    644: MARCS_3400K_lg+45
+    645: MARCS_3400K_lg+50
+    646: MARCS_3400K_lg+55
+
+    651: MARCS_3500K_lg+30
+    652: MARCS_3500K_lg+35
+    653: MARCS_3500K_lg+40
+    654: MARCS_3500K_lg+45
+    655: MARCS_3500K_lg+50
+    656: MARCS_3500K_lg+55
+
+    661: MARCS_3600K_lg+30
+    662: MARCS_3600K_lg+35
+    663: MARCS_3600K_lg+40
+    664: MARCS_3600K_lg+45
+    665: MARCS_3600K_lg+50
+    666: MARCS_3600K_lg+55
+
+    671: MARCS_3700K_lg+30
+    672: MARCS_3700K_lg+35
+    673: MARCS_3700K_lg+40
+    674: MARCS_3700K_lg+45
+    675: MARCS_3700K_lg+50
+    676: MARCS_3700K_lg+55
+
+    681: MARCS_3800K_lg+30
+    682: MARCS_3800K_lg+35
+    683: MARCS_3800K_lg+40
+    684: MARCS_3800K_lg+45
+    685: MARCS_3800K_lg+50
+    686: MARCS_3800K_lg+55
+
+    691: MARCS_3900K_lg+30
+    692: MARCS_3900K_lg+35
+    693: MARCS_3900K_lg+40
+    694: MARCS_3900K_lg+45
+    695: MARCS_3900K_lg+50
+    696: MARCS_3900K_lg+55
+
+    701: MARCS_4000K_lg+30
+    702: MARCS_4000K_lg+35
+    703: MARCS_4000K_lg+40
+    704: MARCS_4000K_lg+45
+    705: MARCS_4000K_lg+50
+
+    711: MARCS_4250K_lg+30
+    712: MARCS_4250K_lg+35
+    713: MARCS_4250K_lg+40
+    714: MARCS_4250K_lg+45
+    715: MARCS_4250K_lg+50
+
+    721: MARCS_4500K_lg+30
+    722: MARCS_4500K_lg+35
+    723: MARCS_4500K_lg+40
+    724: MARCS_4500K_lg+45
+    725: MARCS_4500K_lg+50
+
+    731: MARCS_4750K_lg+30
+    732: MARCS_4750K_lg+35
+    733: MARCS_4750K_lg+40
+    734: MARCS_4750K_lg+45
+    735: MARCS_4750K_lg+50
+
+    741: MARCS_5000K_lg+30
+    742: MARCS_5000K_lg+35
+    743: MARCS_5000K_lg+40
+    744: MARCS_5000K_lg+45
+    745: MARCS_5000K_lg+50
+
+    751: MARCS_5250K_lg+30
+    752: MARCS_5250K_lg+35
+    753: MARCS_5250K_lg+40
+    754: MARCS_5250K_lg+45
+    755: MARCS_5250K_lg+50
+
+    761: MARCS_5500K_lg+30
+    762: MARCS_5500K_lg+35
+    763: MARCS_5500K_lg+40
+    764: MARCS_5500K_lg+45
+    765: MARCS_5500K_lg+50
+
+    771: MARCS_5750K_lg+30
+    772: MARCS_5750K_lg+35
+    773: MARCS_5750K_lg+40
+    774: MARCS_5750K_lg+45
+    775: MARCS_5750K_lg+50
+
+    781: MARCS_6000K_lg+30
+    782: MARCS_6000K_lg+35
+    783: MARCS_6000K_lg+40
+    784: MARCS_6000K_lg+45
+    785: MARCS_6000K_lg+50
+
+    791: MARCS_6250K_lg+30
+    792: MARCS_6250K_lg+35
+    793: MARCS_6250K_lg+40
+    794: MARCS_6250K_lg+45
+    795: MARCS_6250K_lg+50
+
+    801: MARCS_6500K_lg+30
+    802: MARCS_6500K_lg+35
+    803: MARCS_6500K_lg+40
+    804: MARCS_6500K_lg+45
+    805: MARCS_6500K_lg+50
+
+    811: MARCS_6750K_lg+30
+    812: MARCS_6750K_lg+35
+    813: MARCS_6750K_lg+40
+    814: MARCS_6750K_lg+45
+    815: MARCS_6750K_lg+50
+
+    821: MARCS_7000K_lg+30
+    822: MARCS_7000K_lg+35
+    823: MARCS_7000K_lg+40
+    824: MARCS_7000K_lg+45
+    825: MARCS_7000K_lg+50
+
+    831: MARCS_7250K_lg+30
+    832: MARCS_7250K_lg+35
+    833: MARCS_7250K_lg+40
+    834: MARCS_7250K_lg+45
+    835: MARCS_7250K_lg+50
+
+    841: MARCS_7500K_lg+30
+    842: MARCS_7500K_lg+35
+    843: MARCS_7500K_lg+40
+    844: MARCS_7500K_lg+45
+    845: MARCS_7500K_lg+50
+
+    851: MARCS_7750K_lg+30
+    852: MARCS_7750K_lg+35
+    853: MARCS_7750K_lg+40
+    854: MARCS_7750K_lg+45
+    855: MARCS_7750K_lg+50
+
+    861: MARCS_8000K_lg+30
+    862: MARCS_8000K_lg+35
+    863: MARCS_8000K_lg+40
+    864: MARCS_8000K_lg+45
+    865: MARCS_8000K_lg+50
+
+  AM:
+    1: 1.0
+    2: 1.2
+    3: 1.5
+    4: 2.0
+
+  FLI:
+    1: 0.0
+    2: 0.5
+    3: 1.0
+
+full_obs:
+  INS: moslr
+  CH: Red
+
+  NDIT: 1
+  DIT: 10
+
+  SNR: 100
+  Lam_Ref: 8314.6
+
+  OBJ_FIB_DISP: 0
+
+  MOON: greysky
+  PWV: 10
+  FLI: 0.5
+  SEE: 0.2
+  AM: 1.20
+  SKYCALC: False
+
+  Obj_SED: template
+  SED_Name: MARCS_8000K_lg+45
+
+  OBJ_MAG: 15
+  MAG_SYS: Vega
+  MAG_FIL: V
+
+  Z: 0
+  BB_Temp: 9000.
+  PL_Index: None
+
+  SEL_FLUX: 50e-16
+  SEL_CWAV: 8000
+  SEL_FWHM: 20
+
+  Obj_Spat_Dis: resolved
+
+  IMA: sersic
+
+  IMA_FWHM: 0.8
+  IMA_BETA: 2.5
+
+  Sersic_Reff: 1
+  Sersic_Ind: 3
+
+  COADD_WL: 10
+
+  COADD_XY: 1
