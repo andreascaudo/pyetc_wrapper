@@ -21,9 +21,9 @@ enums:
     3: moslr
 
   CH:
-    1: Blue
-    2: Green
-    3: Red
+    1: blue
+    2: green
+    3: red
     4: U
     5: B
     6: V
