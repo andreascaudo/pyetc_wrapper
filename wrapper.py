@@ -110,6 +110,7 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
 
     try:
         DIT = full_obs["DIT"]
+        NDIT = full_obs["NDIT"]
         SNR = full_obs["SNR"]
 
         print("Build obs pre")
@@ -164,7 +165,7 @@ def main() -> None:
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of CPU available: {cpu_count}")
     # --- load FITS into pandas ----------------------------------------
-    fits_path = "/Users/andre/Desktop/INAF/WST/pyetc_wrap/data/102_TESTCATALOG_v1225_1000.fits"
+    fits_path = "/Users/andre/Desktop/INAF/WST/pyetc_wrap/data/103_TESTCATALOG_v1225_1000.fits"
     tab = Table.read(fits_path, format="fits")
     df = tab.to_pandas()
     print("FITS file loaded")
@@ -186,8 +187,8 @@ def main() -> None:
     # --- assemble results --------------------------------------------
     out_df = pd.DataFrame(results)
     print(out_df)
-    # out_csv = "results_parallel.csv"
-    # out_df.to_csv(out_csv, index=False)
+    out_csv = "results_parallel.csv"
+    out_df.to_csv(out_csv, index=False)
     # print(f"✓ Results saved to {out_csv}")
 
 
