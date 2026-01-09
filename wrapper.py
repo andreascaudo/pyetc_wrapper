@@ -165,7 +165,7 @@ def main() -> None:
     cpu_count = multiprocessing.cpu_count()
     print(f"Number of CPU available: {cpu_count}")
     # --- load FITS into pandas ----------------------------------------
-    fits_path = "/Users/andre/Desktop/INAF/WST/pyetc_wrap/data/103_TESTCATALOG_v1225_1000.fits"
+    fits_path = ""  # PATH TO FITS FILE
     tab = Table.read(fits_path, format="fits")
     df = tab.to_pandas()
     print("FITS file loaded")
@@ -181,7 +181,8 @@ def main() -> None:
     # --- multiprocessing ---------------------------------------------
     # with multiprocessing.Pool(processes=multiprocessing.cpu_count(), initializer=init_worker) as pool:
     print("Starting pool")
-    with multiprocessing.Pool(processes=1, initializer=init_worker) as pool:
+    # set the number of processes to the number of CPU available
+    with multiprocessing.Pool(processes=cpu_count, initializer=init_worker) as pool:
         results = pool.map(process_row, input_rows)
 
     # --- assemble results --------------------------------------------
