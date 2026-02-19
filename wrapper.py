@@ -250,7 +250,7 @@ def main() -> None:
     print(f"Number of CPU available: {cpu_count}")
     # --- load FITS into pandas ----------------------------------------
     # PATH TO FITS FILE
-    fits_path = "/Users/andre/Downloads/update_ETC_0226/209_TESTETC_v0226.fits"
+    fits_path = ""
     tab = Table.read(fits_path, format="fits")
     df = tab.to_pandas()
     print("FITS file loaded")
@@ -264,8 +264,8 @@ def main() -> None:
     print("Starting pool")
     # set the number of processes to the number of CPU available
     start_time = time.time()
-    out_csv = "209_TESTETC_v0226.csv"
-    out_fits = "209_TESTETC_v0226_TestResults.fits"
+    out_csv = ".csv"
+    out_fits = ".fits"
     batch_size = 10000  # small batches keep memory bounded
     wrote_header = False
     wrote_fits = False
@@ -285,7 +285,7 @@ def main() -> None:
         wrote_fits = True
 
     with multiprocessing.Pool(
-        processes=10,
+        processes=cpu_count,  # Can be changed to the number of processes you want to use
         initializer=init_worker,
         maxtasksperchild=500,
     ) as pool:
