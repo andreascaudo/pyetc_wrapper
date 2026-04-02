@@ -16,6 +16,8 @@ INS = codebook['enums']['INS']
 CH = codebook['enums']['CH']
 AM = codebook['enums']['AM']
 FLI = codebook['enums']['FLI']
+PWV = codebook['enums']['PWV']
+COADD_XY = codebook['enums']['COADD_XY']
 
 # Export default full_obs template
 TEMPLATE_FULL_OBS = codebook['full_obs']

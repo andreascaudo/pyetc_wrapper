@@ -16,7 +16,7 @@ from astropy import units as u
 from astropy.table import Table
 from astropy.io import fits                         # noqa: F401  (kept: imported in notebook)
 
-from utils.codebook import Obj_SED, Obj_Spat_Dis, MAG_FIL, MAG_SYS, INS, CH, TEMPLATE_FULL_OBS, AM, SED_Name, FLI
+from utils.codebook import Obj_SED, Obj_Spat_Dis, MAG_FIL, MAG_SYS, INS, CH, TEMPLATE_FULL_OBS, AM, SED_Name, FLI, PWV, COADD_XY
 
 import time
 
@@ -164,6 +164,16 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
         full_obs["AM"] = AM[row["AM"]]
     except Exception as exc:
         return {**row, "ERR": 1, "ERR_MSG": f"AM: {exc}"}
+
+    try:
+        full_obs["PWV"] = PWV[row["PWV"]]
+    except Exception as exc:
+        return {**row, "ERR": 1, "ERR_MSG": f"PWV: {exc}"}
+
+    try:
+        full_obs["COADD_XY"] = COADD_XY[row["COADD_XY"]]
+    except Exception as exc:
+        return {**row, "ERR": 1, "ERR_MSG": f"COADD_XY: {exc}"}
 
     try:
         fli_raw = row.get("FLI")
