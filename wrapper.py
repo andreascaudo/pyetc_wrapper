@@ -280,6 +280,8 @@ def main() -> None:
     wrote_header = False
     wrote_fits = False
 
+    #################### V0 FACILITY SIMULATOR UPDATES ###############
+
     if FITS_OUTPUT:
         # Create output FITS with EXACT same columns/dtypes as input,
         # then update rows in-place batch-by-batch.
