@@ -256,11 +256,29 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
 # 4. Main driver
 # ----------------------------------------------------------------------
 def main() -> None:
-    cpu_count = multiprocessing.cpu_count()
+    
+    import argparse
+
+    parser = argparse.ArgumentParser(description="WST EST Wrapper")
+    parser.add_argument('input_file', type=str, help='Input file path')
+    parser.add_argument('output_file', type=str, help='Output file path')
+    parser.add_argument('--ncpu', type=int, default=None, help='# of CPUs to use')
+
+    args = parser.parse_args()
+    
+    fits_path = args.input_file
+    out_fits = args.output_file
+    
+    cpu_count = None
+    if args.ncpu is None:
+        cpu_count = multiprocessing.cpu_count()
+    else:
+        cpu_count = args.ncpu
+    
+    
     print(f"Number of CPU available: {cpu_count}")
     # --- load FITS into pandas ----------------------------------------
     # PATH TO FITS FILE
-    fits_path = ""
     tab = Table.read(fits_path, format="fits")
     df = tab.to_pandas()
     print("FITS file loaded")
@@ -275,7 +293,6 @@ def main() -> None:
     # set the number of processes to the number of CPU available
     start_time = time.time()
     out_csv = ".csv"
-    out_fits = ".fits"
     batch_size = 10000  # small batches keep memory bounded
     wrote_header = False
     wrote_fits = False
