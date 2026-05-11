@@ -51,19 +51,51 @@ def init_worker():
 # ----------------------------------------------------------------------
 # 3. Per-row computation wrapped in a picklable function
 # ----------------------------------------------------------------------
+# [for all science WPs, except WP 2.2]
 def _snr_at_lam_ref(full_obs: Dict[str, Any]) -> Any:
     """
     Compute SNR at Lam_Ref for the provided full_obs (DIT must be set).
 
     Returns the same object type as the underlying ETC (often a float-like).
     """
-    con, ob, spe, im, _ = obj.build_obs_full(full_obs)
+    con, ob, spe, im, _ = obj.build_obs_full(full_obs)   
     if full_obs.get("COADD_WL", 1) > 1:
         snr_spec = obj.snr_at_wave(con, im, spe, debug=False)[
             "snr_aperture_rebin"]
     else:
         snr_spec = obj.snr_at_wave(con, im, spe, debug=False)["snr_aperture"]
     return snr_spec
+
+
+# [To allow SNR computation in a spectral band for WP 2.2] [M. Palla 11/05/26]
+def _snr_at_range_ref(full_obs: Dict[str, Any]) -> Any:
+    """
+    Compute SNR in wvl range around lam_ref for the provided full_obs (DIT must be set).
+
+    Returns the same object type as the underlying ETC (often a float-like).
+    """
+    con, ob, spe, im, _ = obj.build_obs_full(full_obs)
+    
+    if full_obs.get("COADD_WL", 1) > 1:
+        # iteration over wavelength range given in input (200 A, sampling 100/REBIN as requested by WP 2.2)
+        wvl_range_in = np.linspace(ob["snr_wave"]-100.,ob["snr_wave"]+100.,100//full_obs["COADD_WL"])
+        snrs=[]
+        for wvls in wvl_range_in:
+            snrs.append(obj.snr_at_wave(con, im, spe, wvls, debug=False)[
+                "snr_aperture_rebin"])            
+        # median to avoid spurios results due to em./abs. spikes at specific wvl
+        snr_spec = np.median(snrs)
+    else:
+        # iteration over wavelength range given in input (200 A, sampling 100 as requested by WP 2.2)
+        wvl_range_in = np.linspace(ob["snr_wave"]-100.,ob["snr_wave"]+100.,100)
+        snrs=[]
+        for wvls in wvl_range_in:
+            snrs.append(obj.snr_at_wave(con, im, spe, wvls, debug=False)["snr_aperture"])
+        # median to avoid spurios results due to em./abs. spikes at specific wvl
+        snr_spec = np.median(snrs)
+
+    return snr_spec
+
 
 
 def _time_from_target_snr(
@@ -211,8 +243,12 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
                 full_obs_snr["NDIT"] = fixed_ndit
             # ensure we are in "compute SNR" mode
             full_obs_snr["SNR"] = np.nan
-
-            snr_val = _snr_at_lam_ref(full_obs_snr)
+            
+            # [DISTINGUISH WP 2.2 FROM OTHERS as they need SNR calculation in a band] [M. Palla 11/05/26]
+            if( str(row.get("SUBSURVEY", 999)[0]).startswith('2') ):
+                snr_val = _snr_at_range_ref(full_obs_snr) 
+            else:
+                snr_val = _snr_at_lam_ref(full_obs_snr)
             row["SNR"] = snr_val
 
             # compute darker-sky exposure times that reach the same SNR
