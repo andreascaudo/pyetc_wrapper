@@ -171,7 +171,8 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
         return {**row, "ERR": 1, "ERR_MSG": f"PWV: {exc}"}
 
     try:
-        full_obs["COADD_XY"] = COADD_XY[row["COADD_XY"]]
+        full_obs["COADD_XY"] = None if pd.isna(
+            row["COADD_XY"]) else COADD_XY[row["COADD_XY"]]
     except Exception as exc:
         return {**row, "ERR": 1, "ERR_MSG": f"COADD_XY: {exc}"}
 
