@@ -245,8 +245,9 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
             # ensure we are in "compute SNR" mode
             full_obs_snr["SNR"] = np.nan
             
-            # [DISTINGUISH WP 2.2 FROM OTHERS as they need SNR calculation in a band] [M. Palla 11/05/26]
-            if( str(row.get("SUBSURVEY", 999)[0]).startswith('2') ):
+            # [DISTINGUISH WP 2.3 (catalog 201, 203) FROM OTHERS as they need SNR calculation in a band] 
+            range_flag = [201, 203] # subsurveys needing computation over wvl range
+            if row.get("SUBSURVEY", 999)[0] in range_flag:
                 snr_val = _snr_at_range_ref(full_obs_snr) 
             else:
                 snr_val = _snr_at_lam_ref(full_obs_snr)
