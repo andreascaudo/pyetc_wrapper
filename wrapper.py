@@ -145,7 +145,8 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
             f"[DEBUG] Process PID={pid} CPU/Pool_ID={cpu_id} is processing ID={row.get('ID')}")
 
     full_obs = TEMPLATE_FULL_OBS.copy()
-    full_obs.update(row)  # overwrite with row entries
+    # only the keys the ETC knows about: catalogue columns like ID/RA/SUBSURVEY are not ETC inputs
+    full_obs.update({k: v for k, v in row.items() if k in full_obs})
 
     # Ensure output exposure-time columns exist.
     # We keep DIT only inside full_obs (ETC input); the FITS table should use T1/2/3.

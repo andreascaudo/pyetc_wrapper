@@ -1230,8 +1230,6 @@ full_obs:
   SNR: 100
   Lam_Ref: 8314.6
 
-  OBJ_FIB_DISP: 0
-
   MOON: greysky
   PWV: 1
   FLI: 1
