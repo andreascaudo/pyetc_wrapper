@@ -3,6 +3,7 @@
 # ----------------------------------------------------------------------
 import traceback
 from pyetc_wst import WST
+from pyetc_wst.etc import snr_in_window
 import os
 import sys
 import warnings
@@ -51,51 +52,24 @@ def init_worker():
 # ----------------------------------------------------------------------
 # 3. Per-row computation wrapped in a picklable function
 # ----------------------------------------------------------------------
-# [for all science WPs, except WP 2.2]
 def _snr_at_lam_ref(full_obs: Dict[str, Any]) -> Any:
     """
-    Compute SNR at Lam_Ref for the provided full_obs (DIT must be set).
+    Compute SNR at Lam_Ref, or the median SNR in [LAM_WIN1, LAM_WIN2] when
+    SNR_RANGE is set, for the provided full_obs (DIT must be set).
 
     Returns the same object type as the underlying ETC (often a float-like).
     """
     con, ob, spe, im, _ = obj.build_obs_full(full_obs)   
+    if full_obs.get("SNR_RANGE"):
+        res = obj.snr_from_source(con, im, spe, debug=False)
+        # SNR per spectral bin (= per pixel if COADD_WL = 1): the unit time_from_source targets
+        return snr_in_window(res, full_obs["LAM_WIN1"], full_obs["LAM_WIN2"], unit="bin")
     if full_obs.get("COADD_WL", 1) > 1:
         snr_spec = obj.snr_at_wave(con, im, spe, debug=False)[
             "snr_aperture_rebin"]
     else:
         snr_spec = obj.snr_at_wave(con, im, spe, debug=False)["snr_aperture"]
     return snr_spec
-
-
-# [To allow SNR computation in a spectral band for WP 2.2] [M. Palla 11/05/26]
-def _snr_at_range_ref(full_obs: Dict[str, Any]) -> Any:
-    """
-    Compute SNR in wvl range around lam_ref for the provided full_obs (DIT must be set).
-
-    Returns the same object type as the underlying ETC (often a float-like).
-    """
-    con, ob, spe, im, _ = obj.build_obs_full(full_obs)
-    
-    if full_obs.get("COADD_WL", 1) > 1:
-        # iteration over wavelength range given in input (200 A, sampling 100/REBIN as requested by WP 2.2)
-        wvl_range_in = np.linspace(ob["snr_wave"]-100.,ob["snr_wave"]+100.,100//full_obs["COADD_WL"])
-        snrs=[]
-        for wvls in wvl_range_in:
-            snrs.append(obj.snr_at_wave(con, im, spe, wvls, debug=False)[
-                "snr_aperture_rebin"])            
-        # median to avoid spurios results due to em./abs. spikes at specific wvl
-        snr_spec = np.median(snrs)
-    else:
-        # iteration over wavelength range given in input (200 A, sampling 100 as requested by WP 2.2)
-        wvl_range_in = np.linspace(ob["snr_wave"]-100.,ob["snr_wave"]+100.,100)
-        snrs=[]
-        for wvls in wvl_range_in:
-            snrs.append(obj.snr_at_wave(con, im, spe, wvls, debug=False)["snr_aperture"])
-        # median to avoid spurios results due to em./abs. spikes at specific wvl
-        snr_spec = np.median(snrs)
-
-    return snr_spec
-
 
 
 def _time_from_target_snr(
@@ -219,26 +193,36 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as exc:
         return {**row, "ERR": 1, "ERR_MSG": f"FLI: {exc}"}
 
+    # Lam_Ref2 given: SNR is the median over [Lam_Ref, Lam_Ref2] (the ETC ignores windows for lines)
+    if not pd.isna(row.get("Lam_Ref2")) and full_obs["Obj_SED"] != "line":
+        full_obs.update(SNR_RANGE=True, LAM_WIN1=row["Lam_Ref"], LAM_WIN2=row["Lam_Ref2"])
+
     # ------------------------------------------------------------------
     # --- ETC computation ----------------------------------------------
 
     try:
         # if NDIT is given in input, keep it across all T1/T2/T3 computations
         fixed_ndit = None if pd.isna(row.get("NDIT")) else row.get("NDIT")
+        # ETC window mode cannot optimise NDIT (compute='best')
+        if full_obs.get("SNR_RANGE") and fixed_ndit is None:
+            return {**row, "ERR": 1, "ERR_MSG": "Lam_Ref2 requires NDIT"}
 
         # Decide what to compute based on whether SNR is given
         if pd.isna(row.get("SNR")):
             # ----------------------------------------------------------
             # Case exp time given: compute SNR for DIT(FLI) then compute
-            # missing DIT's for darker skies using that SNR
+            # the DIT's for the other two skies using that SNR
             # ----------------------------------------------------------
             dit_key = f"T{fli_code}"
             dit_given = row.get(dit_key)
             if pd.isna(dit_given):
                 return {**row, "ERR": 1, "ERR_MSG": f"Missing {dit_key} for exp-time case"}
+            # the Facility Simulator splits exposures itself: report one exposure of NDIT * T
+            if fixed_ndit is not None and fixed_ndit > 1:
+                dit_given = row[dit_key] = dit_given * fixed_ndit
+                fixed_ndit = row["NDIT"] = 1
 
             full_obs_snr = full_obs.copy()
-            full_obs_snr["FLI"] = FLI[fli_code]
             # ETC needs 'DIT' key even though the FITS input has T1/2/3 only
             full_obs_snr["DIT"] = dit_given
             if fixed_ndit is not None:
@@ -246,15 +230,13 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
             # ensure we are in "compute SNR" mode
             full_obs_snr["SNR"] = np.nan
             
-            # [DISTINGUISH WP 2.2 FROM OTHERS as they need SNR calculation in a band] [M. Palla 11/05/26]
-            if( str(row.get("SUBSURVEY", 999)[0]).startswith('2') ):
-                snr_val = _snr_at_range_ref(full_obs_snr) 
-            else:
-                snr_val = _snr_at_lam_ref(full_obs_snr)
+            snr_val = _snr_at_lam_ref(full_obs_snr)
             row["SNR"] = snr_val
 
-            # compute darker-sky exposure times that reach the same SNR
-            for sky_code in range(1, fli_code):
+            # compute the other skies' exposure times that reach the same SNR
+            for sky_code in (1, 2, 3):
+                if sky_code == fli_code:
+                    continue
                 full_obs_i = full_obs.copy()
                 full_obs_i["FLI"] = FLI[sky_code]
                 dit_val, _ = _time_from_target_snr(
@@ -266,14 +248,13 @@ def process_row(row: Dict[str, Any]) -> Dict[str, Any]:
             return row
 
         # --------------------------------------------------------------
-        # Case SNR given: compute t1/t2/t3 up to the requested FLI
+        # Case SNR given: compute T1/T2/T3
         # --------------------------------------------------------------
         target_snr = row.get("SNR")
-        last_res: Dict[str, Any] = {}
-        for sky_code in range(1, fli_code + 1):
+        for sky_code in (1, 2, 3):
             full_obs_i = full_obs.copy()
             full_obs_i["FLI"] = FLI[sky_code]
-            dit_val, res = _time_from_target_snr(
+            dit_val, _ = _time_from_target_snr(
                 full_obs_i, target_snr=target_snr, fixed_ndit=fixed_ndit
             )
             row[f"T{sky_code}"] = dit_val
